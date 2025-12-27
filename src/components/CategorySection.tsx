@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { 
-  Thermometer, 
+  Lightbulb, 
   UtensilsCrossed, 
   Tv, 
-  Lightbulb, 
+  Fan, 
   Monitor, 
   Zap,
   type LucideIcon 
@@ -13,10 +13,10 @@ import type { ApplianceWithQuantity } from '@/data/appliances';
 import { applianceCategories } from '@/data/appliances';
 
 const iconMap: Record<string, LucideIcon> = {
-  Thermometer,
+  Lightbulb,
   UtensilsCrossed,
   Tv,
-  Lightbulb,
+  Fan,
   Monitor,
   Zap,
 };
@@ -25,23 +25,26 @@ interface CategorySectionProps {
   categoryId: string;
   appliances: ApplianceWithQuantity[];
   onUpdateQuantity: (id: string, quantity: number) => void;
+  hasHeavyDutySelected?: boolean;
 }
 
 export const CategorySection = memo(function CategorySection({
   categoryId,
   appliances,
   onUpdateQuantity,
+  hasHeavyDutySelected = false,
 }: CategorySectionProps) {
   const category = applianceCategories.find(c => c.id === categoryId);
   if (!category) return null;
 
   const IconComponent = iconMap[category.icon] || Zap;
   const activeCount = appliances.filter(a => a.quantity > 0).length;
+  const isHeavyDutyCategory = categoryId === 'heavy-duty';
 
   return (
     <div className="animate-slide-up" style={{ animationDelay: `${applianceCategories.indexOf(category) * 50}ms` }}>
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+        <div className={`p-2 rounded-lg ${isHeavyDutyCategory ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
           <IconComponent className="h-4 w-4" />
         </div>
         <h3 className="font-display font-semibold text-foreground">
@@ -53,6 +56,12 @@ export const CategorySection = memo(function CategorySection({
           </span>
         )}
       </div>
+
+      {isHeavyDutyCategory && (
+        <p className="text-xs text-destructive mb-3 bg-destructive/5 p-2 rounded-md">
+          ⚠️ Only ONE heavy-duty appliance allowed at a time for accurate inverter sizing.
+        </p>
+      )}
       
       <div className="grid gap-2">
         {appliances.map(appliance => (
@@ -60,6 +69,7 @@ export const CategorySection = memo(function CategorySection({
             key={appliance.id}
             appliance={appliance}
             onUpdateQuantity={onUpdateQuantity}
+            isDisabled={isHeavyDutyCategory && hasHeavyDutySelected && appliance.quantity === 0}
           />
         ))}
       </div>

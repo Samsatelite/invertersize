@@ -6,67 +6,38 @@
 
 @layer base {
   :root {
-    /* Core palette - Deep navy with electric teal */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Electric teal primary */
-    --primary: 175 84% 45%;
-    --primary-foreground: 222 47% 6%;
-
-    /* Muted navy secondary */
-    --secondary: 222 47% 14%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 30% 18%;
-    --muted-foreground: 215 20% 55%;
-
-    --accent: 175 84% 32%;
-    --accent-foreground: 210 40% 98%;
-
-    /* Status colors */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 6%;
-
-    --success: 142 76% 45%;
-    --success-foreground: 222 47% 6%;
-
-    --border: 222 30% 18%;
-    --input: 222 30% 14%;
-    --ring: 175 84% 45%;
-
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 32 98% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 32 98% 50%;
     --radius: 0.75rem;
-
-    /* Gradient tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(175 84% 45%), hsl(175 84% 32%));
-    --gradient-card: linear-gradient(180deg, hsl(222 47% 11%), hsl(222 47% 8%));
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 8%) 0%, hsl(222 47% 4%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(175 84% 45% / 0.15), transparent 70%);
-
-    /* Shadow tokens */
-    --shadow-sm: 0 2px 8px hsl(222 47% 4% / 0.3);
-    --shadow-md: 0 4px 20px hsl(222 47% 4% / 0.4);
-    --shadow-glow: 0 0 40px hsl(175 84% 45% / 0.25);
-    --shadow-card: 0 8px 32px hsl(222 47% 4% / 0.5);
-
-    /* Sidebar */
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 175 84% 45%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 47% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 175 84% 45%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 32 98% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 32 98% 50%;
   }
 }
 
@@ -87,25 +58,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
-  }
-
-  .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
-    box-shadow: var(--shadow-card);
-  }
-
-  .glow-effect {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-
-  .animate-pulse-subtle {
-    animation: pulse-subtle 2s ease-in-out infinite;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80;
   }
 
   .animate-slide-up {
@@ -114,24 +67,6 @@
 
   .animate-count {
     animation: count 0.3s ease-out;
-  }
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 20px hsl(175 84% 45% / 0.2);
-  }
-  to {
-    box-shadow: 0 0 40px hsl(175 84% 45% / 0.4);
-  }
-}
-
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.85;
   }
 }
 
@@ -153,23 +88,4 @@
   to {
     transform: scale(1);
   }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--background));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
 }

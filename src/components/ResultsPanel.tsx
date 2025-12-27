@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Zap, Activity, Clock, AlertTriangle, Lightbulb, Download, RotateCcw } from 'lucide-react';
+import { Zap, Activity, AlertTriangle, Lightbulb, Download, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatCard } from './StatCard';
@@ -11,7 +11,6 @@ interface ResultsPanelProps {
     peakSurge: number;
     requiredKva: number;
     recommendedInverter: number;
-    backupHours: number;
     warnings: string[];
     recommendations: string[];
   };
@@ -47,18 +46,17 @@ export const ResultsPanel = memo(function ResultsPanel({
           delay={50}
         />
         <StatCard
-          label="Inverter Size"
-          value={calculations.recommendedInverter}
+          label="Required"
+          value={calculations.requiredKva}
           unit="kVA"
           icon={<Zap className="h-4 w-4" />}
-          highlight
           delay={100}
         />
         <StatCard
-          label="Backup Time"
-          value={calculations.backupHours}
-          unit="hours"
-          icon={<Clock className="h-4 w-4" />}
+          label="Recommended"
+          value={calculations.recommendedInverter}
+          unit="kVA"
+          icon={<Zap className="h-4 w-4" />}
           highlight
           delay={150}
         />
@@ -66,7 +64,7 @@ export const ResultsPanel = memo(function ResultsPanel({
 
       {/* Warnings */}
       {calculations.warnings.length > 0 && (
-        <Card variant="warning" className="animate-slide-up" style={{ animationDelay: '200ms' }}>
+        <Card className="border-warning/50 bg-warning/5 animate-slide-up" style={{ animationDelay: '200ms' }}>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base text-warning">
               <AlertTriangle className="h-4 w-4" />
@@ -76,7 +74,7 @@ export const ResultsPanel = memo(function ResultsPanel({
           <CardContent>
             <ul className="space-y-1.5">
               {calculations.warnings.map((warning, i) => (
-                <li key={i} className="text-sm text-warning/90 flex items-start gap-2">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                   <span className="text-warning mt-1.5">•</span>
                   {warning}
                 </li>
@@ -88,7 +86,7 @@ export const ResultsPanel = memo(function ResultsPanel({
 
       {/* Recommendations */}
       {calculations.recommendations.length > 0 && (
-        <Card variant="success" className="animate-slide-up" style={{ animationDelay: '250ms' }}>
+        <Card className="border-success/50 bg-success/5 animate-slide-up" style={{ animationDelay: '250ms' }}>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base text-success">
               <Lightbulb className="h-4 w-4" />
@@ -98,7 +96,7 @@ export const ResultsPanel = memo(function ResultsPanel({
           <CardContent>
             <ul className="space-y-1.5">
               {calculations.recommendations.map((rec, i) => (
-                <li key={i} className="text-sm text-success/90 flex items-start gap-2">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                   <span className="text-success mt-1.5">•</span>
                   {rec}
                 </li>
@@ -119,23 +117,22 @@ export const ResultsPanel = memo(function ResultsPanel({
           onClick={onReset}
           disabled={!hasResults}
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="h-4 w-4 mr-2" />
           Reset
         </Button>
         <Button
-          variant="glow"
           className="flex-1"
           onClick={onDownloadPDF}
           disabled={!hasResults}
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4 mr-2" />
           Download PDF
         </Button>
       </div>
 
       {/* Empty State */}
       {!hasResults && (
-        <div className="text-center py-8 text-muted-foreground animate-fade-in">
+        <div className="text-center py-8 text-muted-foreground">
           <Zap className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p className="text-sm">Select appliances to see your power requirements</p>
         </div>

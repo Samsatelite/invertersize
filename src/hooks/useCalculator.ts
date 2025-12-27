@@ -1,22 +1,15 @@
 import { useState, useMemo, useCallback } from 'react';
 import { appliances, inverterSizes, type ApplianceWithQuantity } from '@/data/appliances';
 
-interface BatteryConfig {
-  voltage: number;
-  capacity: number;
-  count: number;
-  dod: number;
-}
-
 interface CalculationResult {
   totalLoad: number;
   peakSurge: number;
   requiredPower: number;
   requiredKva: number;
   recommendedInverter: number;
-  backupHours: number;
   warnings: string[];
   recommendations: string[];
+  selectedHeavyDuty: ApplianceWithQuantity | null;
 }
 
 export function useCalculator() {
@@ -24,17 +17,22 @@ export function useCalculator() {
     appliances.map(a => ({ ...a, quantity: 0 }))
   );
 
-  const [batteryConfig, setBatteryConfig] = useState<BatteryConfig>({
-    voltage: 24,
-    capacity: 200,
-    count: 2,
-    dod: 0.8,
-  });
-
   const updateQuantity = useCallback((id: string, quantity: number) => {
-    setSelectedAppliances(prev =>
-      prev.map(a => (a.id === id ? { ...a, quantity: Math.max(0, quantity) } : a))
-    );
+    setSelectedAppliances(prev => {
+      const appliance = prev.find(a => a.id === id);
+      
+      // If this is a heavy-duty appliance and we're selecting it
+      if (appliance?.isHeavyDuty && quantity > 0) {
+        // Reset all other heavy-duty appliances to 0, set this one to 1
+        return prev.map(a => {
+          if (a.id === id) return { ...a, quantity: 1 };
+          if (a.isHeavyDuty) return { ...a, quantity: 0 };
+          return a;
+        });
+      }
+      
+      return prev.map(a => (a.id === id ? { ...a, quantity: Math.max(0, quantity) } : a));
+    });
   }, []);
 
   const resetAll = useCallback(() => {
@@ -65,36 +63,15 @@ export function useCalculator() {
     // Find recommended inverter size
     const recommendedInverter = inverterSizes.find(size => size >= requiredKva) || inverterSizes[inverterSizes.length - 1];
 
-    // Battery energy and backup hours
-    const batteryEnergy =
-      batteryConfig.voltage *
-      batteryConfig.capacity *
-      batteryConfig.count *
-      batteryConfig.dod;
-    const backupHours = totalLoad > 0 ? batteryEnergy / totalLoad : 0;
+    // Get selected heavy duty appliance
+    const selectedHeavyDuty = activeAppliances.find(a => a.isHeavyDuty) || null;
 
     // Generate warnings
     const warnings: string[] = [];
     const recommendations: string[] = [];
 
-    // Check for high-drain combinations
-    const hasAC = activeAppliances.some(a => a.id.startsWith('ac_'));
-    const hasFridge = activeAppliances.some(a => a.id === 'refrigerator');
-    const hasHeater = activeAppliances.some(a => a.id === 'space_heater');
-    const hasMicrowave = activeAppliances.some(a => a.id === 'microwave');
-    const hasIron = activeAppliances.some(a => a.id === 'iron');
-    const hasKettle = activeAppliances.some(a => a.id === 'electric_kettle');
-
-    if (hasAC && hasFridge) {
-      warnings.push('Running AC and refrigerator together creates high surge demand');
-    }
-
-    if (hasHeater || hasIron || hasKettle) {
-      warnings.push('Heating appliances drain batteries quickly');
-    }
-
-    if (hasAC && hasMicrowave) {
-      warnings.push('Avoid running AC and microwave simultaneously');
+    if (selectedHeavyDuty) {
+      warnings.push(`Heavy-duty appliance selected: ${selectedHeavyDuty.name} (${selectedHeavyDuty.wattage}W). Do not run other heavy appliances concurrently.`);
     }
 
     if (peakSurge > requiredPower * 0.7) {
@@ -103,24 +80,14 @@ export function useCalculator() {
 
     // Generate recommendations
     if (totalLoad > 0) {
-      if (backupHours < 2) {
-        recommendations.push('Consider adding more batteries for longer backup');
+      recommendations.push(`Recommended inverter: ${recommendedInverter} kVA for optimal performance`);
+
+      if (selectedHeavyDuty && selectedHeavyDuty.surge > 2) {
+        recommendations.push(`${selectedHeavyDuty.name} has high startup surge. Ensure inverter can handle ${(selectedHeavyDuty.wattage * selectedHeavyDuty.surge / 1000).toFixed(1)} kW peak.`);
       }
 
       if (requiredKva > 5) {
         recommendations.push('Large load detected - ensure proper ventilation for inverter');
-      }
-
-      if (activeAppliances.some(a => a.category === 'cooling' && a.quantity > 0)) {
-        recommendations.push('Use inverter AC models for better efficiency');
-      }
-
-      if (recommendedInverter === inverterSizes[inverterSizes.length - 1] && requiredKva > recommendedInverter) {
-        recommendations.push('Consider splitting load across multiple inverter systems');
-      }
-
-      if (totalLoad < 1000 && batteryConfig.voltage > 24) {
-        recommendations.push('Lower voltage battery bank may be more cost-effective for this load');
       }
     }
 
@@ -130,24 +97,28 @@ export function useCalculator() {
       requiredPower,
       requiredKva: Math.ceil(requiredKva * 10) / 10,
       recommendedInverter,
-      backupHours: Math.round(backupHours * 10) / 10,
       warnings,
       recommendations,
+      selectedHeavyDuty,
     };
-  }, [selectedAppliances, batteryConfig]);
+  }, [selectedAppliances]);
 
   const activeCount = useMemo(
     () => selectedAppliances.filter(a => a.quantity > 0).length,
     [selectedAppliances]
   );
 
+  const hasHeavyDutySelected = useMemo(
+    () => selectedAppliances.some(a => a.isHeavyDuty && a.quantity > 0),
+    [selectedAppliances]
+  );
+
   return {
     selectedAppliances,
-    batteryConfig,
-    setBatteryConfig,
     updateQuantity,
     resetAll,
     calculations,
     activeCount,
+    hasHeavyDutySelected,
   };
 }

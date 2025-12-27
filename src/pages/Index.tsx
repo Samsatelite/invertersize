@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { CategorySection } from '@/components/CategorySection';
-import { BatteryConfig } from '@/components/BatteryConfig';
 import { ResultsPanel } from '@/components/ResultsPanel';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCalculator } from '@/hooks/useCalculator';
@@ -12,12 +11,11 @@ import { Helmet } from 'react-helmet-async';
 const Index = () => {
   const {
     selectedAppliances,
-    batteryConfig,
-    setBatteryConfig,
     updateQuantity,
     resetAll,
     calculations,
     activeCount,
+    hasHeavyDutySelected,
   } = useCalculator();
 
   const appliancesByCategory = useMemo(() => {
@@ -30,7 +28,6 @@ const Index = () => {
   const handleDownloadPDF = () => {
     downloadPDF({
       appliances: selectedAppliances,
-      batteryConfig,
       calculations,
     });
   };
@@ -38,20 +35,14 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Solar Load Calculator - Plan Your Inverter & Battery Setup</title>
+        <title>Solar Load Calculator - Plan Your Inverter Setup</title>
         <meta 
           name="description" 
-          content="Calculate your solar inverter size and battery requirements. Select your appliances and get instant recommendations for your power backup system." 
+          content="Calculate your solar inverter size. Select your appliances and get instant recommendations for your power backup system." 
         />
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        {/* Background glow effects */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-        </div>
-
         <Header />
 
         <main className="container mx-auto px-4 py-6 relative">
@@ -82,22 +73,18 @@ const Index = () => {
                       categoryId={cat.id}
                       appliances={cat.appliances}
                       onUpdateQuantity={updateQuantity}
+                      hasHeavyDutySelected={hasHeavyDutySelected}
                     />
                   ))}
                 </div>
               </ScrollArea>
             </div>
 
-            {/* Right Column - Results & Config */}
+            {/* Right Column - Results */}
             <div className="lg:sticky lg:top-24 lg:h-fit space-y-4">
-              <BatteryConfig
-                config={batteryConfig}
-                onConfigChange={setBatteryConfig}
-              />
-              
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-semibold text-lg mb-4 flex items-center gap-2">
-                  <span className="text-gradient">Calculation Results</span>
+              <div className="bg-card border border-border rounded-xl p-5">
+                <h3 className="font-display font-semibold text-lg mb-4 text-foreground">
+                  Calculation Results
                 </h3>
                 <ResultsPanel
                   calculations={calculations}

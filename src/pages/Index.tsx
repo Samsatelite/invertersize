@@ -117,10 +117,10 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>InverterSize - Plan Your Inverter Setup</title>
+        <title>InverterSize - Accurate Inverter Size Calculator for Homes and Businesses</title>
         <meta 
           name="description" 
-          content="Calculate your solar inverter size. Select your appliances and get instant recommendations for your power backup system." 
+          content="Find the right inverter size for your home or business with our smart inverter load calculator. Add your appliances, calculate total power consumption, and get accurate inverter size recommendations based on real-world usage and safe load balancing." 
         />
       </Helmet>
 

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, forwardRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -23,14 +23,14 @@ interface EnergyEfficiencyDialogProps {
   onClose: () => void;
 }
 
-export const EnergyEfficiencyDialog = memo(function EnergyEfficiencyDialog({
+export const EnergyEfficiencyDialog = memo(forwardRef<HTMLDivElement, EnergyEfficiencyDialogProps>(function EnergyEfficiencyDialog({
   open,
   dialogType,
   heavyDutyNames = [],
   onConfirm,
   onCancel,
   onClose,
-}: EnergyEfficiencyDialogProps) {
+}, _ref) {
   const getContent = () => {
     switch (dialogType) {
       case 'disabled-appliance':
@@ -72,4 +72,4 @@ export const EnergyEfficiencyDialog = memo(function EnergyEfficiencyDialog({
       </DialogContent>
     </Dialog>
   );
-});
+}));
